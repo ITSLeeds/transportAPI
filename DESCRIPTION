@@ -1,14 +1,13 @@
-Package: cyclestreets
+Package: transportAPI
 Type: Package
-Title: Cycle Routing and Data for Cycling Advocacy
-Version: 0.1.3
+Title: Multimodal route finding for the UK
+Version: 0.0.1
 Authors@R: c(
-    person("Robin", "Lovelace", email = "rob00x@gmail.com", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0001-5679-6536")),
-    person("Martin", "Lucas-Smith", role = c("aut")),
-    person("Eric", "Krueger", role = c("ctb"))
+    person("Malcolm", "Morgan", email = "malcolm-morgan@outlook.com", role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-9488-9183")),
+    person("Robin", "Lovelace", role = c("ctb")),
     )
-Description: The goal of 'cyclestreets' is to provide a simple R interface to the CycleStreets (<https://www.cyclestreets.net/>) cycle routing/data API (<https://www.cyclestreets.net/api/>). This API provides A-B cycle routing, aiming to emulate as closely as possible the routes taken by a knowledgeable cyclist, and as well as other data such as collisions, traffic counts, user-submitted infrastructure images, POIs and more.
+Description: The goal of 'transportAPI' is to provide a simple R interface to the TransportAPI (<https://www.TransportAPI.com/>) routing/data API. This API provides multimodal A-B routing, and as well as other data such as stations, timetables, and more.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
