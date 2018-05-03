@@ -16,18 +16,16 @@
 #' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)`
 #' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)`
 #' @param type Type of routing can be car, cycle, public (DEFAULT)
-#' @param modes Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
-#' @param not_modes Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
-#' @param service Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)
+#' @param modes (type = "public" only) Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
+#' @param not_modes (type = "public" only) Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
+#' @param service (type = "public" only) Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)
 #' @param silent Logical (default is FALSE). TRUE hides request sent.
 #' @param app_id The app id used. By default this uses `Sys.getenv("TRANSPORTAPI_app_id")`.
 #' @param app_key The app key used. By default this uses `Sys.getenv("TRANSPORTAPI_app_key")`.
 #' @param base_url The base url from which to construct API requests
 #' (with default set to main server)
-#' @param reporterrors Boolean value (TRUE/FALSE) indicating if cyclestreets (TRUE by default).
-#' should report errors (FALSE by default).
 #' @param save_raw Boolean value which returns raw list from the json if TRUE (FALSE by default).
-#' @inheritParams json2sf_cs
+#' @inheritParams json2sf_tapi
 #' @seealso json2sf_tapi
 #' @export
 #' @examples
@@ -35,15 +33,7 @@
 #' from = c(-0.134649,51.529258) # Euston Station
 #' to = c(-0.088780,51.506383) # Bridge House
 #' r1 = journey(from, to)
-#' sf:::plot.sf(r1)
-#' to = c(-2, 53.5) # towards manchester
-#' r1 = journey(from, to)
-#' r2 = journey(from, to, plan = "balanced")
-#' plot(r1["busynance"], reset = FALSE)
-#' plot(r2["busynance"], add = TRUE)
-#' r3 = journey(from, to, silent = FALSE)
-#' r4 = journey(from, to, save_raw = TRUE)
-#' r5 = journey(from, to, cols = NULL)
+#' r2 = journey(from, to, type = "car")
 #' }
 journey <- function(from, to,
                     type = "public",
@@ -133,16 +123,8 @@ journey <- function(from, to,
 #' @param cols Columns to be included in the result, a character vector or `NULL` for all available columns (see details for default)
 #' @export
 #' @examples
-#' from = "Leeds Rail Station"
-#' to = "University of Leeds"
-#' # save result from the API call to journey.json
-#' # res_json = stplanr::route_cyclestreet(from, to, silent = FALSE, save_raw = TRUE)
-#' # jsonlite::write_json(res_json, "inst/extdata/journey.json")
-#' f = system.file(package = "cyclestreets", "extdata/journey.json")
-#' obj = jsonlite::read_json(f, simplifyVector = TRUE)
-#' rsf = json2sf_cs(obj)
-#' sf:::plot.sf(rsf)
-#' json2sf_cs(obj, cols = c("time", "busynance", "elevations"))
+#' None
+#'
 json2sf_tapi <- function(obj,type) {
   if(type == "public"){
     # Extract routes
