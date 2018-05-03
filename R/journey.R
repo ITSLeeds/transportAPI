@@ -1,45 +1,39 @@
-#' Plan a journey with CycleStreets.net
+#' Plan a journey with transportAPI
 #'
-#' R interface to the CycleStreets.net journey planning API,
+#' R interface to the transportAPI journey planning API,
 #' a route planner made by cyclists for cyclists.
-#' See [cyclestreets.net/api](https://www.cyclestreets.net/api/) for details.
+#' See [developer.transportapi.com/docs](https://developer.transportapi.com/docs) for details.
 #'
 #' @details
-#' Requires the internet and a CycleStreets.net API key.
-#' CycleStreets.net does not yet work worldwide.
+#' Requires the internet and a transportapi.com API key.
+#' transportapi.com does not yet work worldwide.
 #'
-#' You need to have an api key for this code to run.
-#' By default it uses the CYCLESTREETS environment variable.
+#' You need to have an api key and app id for this code to run.
+#' By default it uses the TRANSPORTAPI_app_id and  TRANSPORTAPI_app_key environment variable.
 #' This can be set with `usethis::edit_r_environ()`.
 #'
-#' A full list of variables (`cols`) available is represented by:
-#' ```
-#' c("time", "busynance", "signalledJunctions", "signalledCrossings",
-#' "name", "walk", "elevations", "distances", "start", "finish",
-#' "startSpeed", "start_longitude", "start_latitude", "finish_longitude",
-#' "finish_latitude", "crow_fly_distance", "event", "whence", "speed",
-#' "itinerary", "clientRouteId", "plan", "note", "length", "quietness",
-#' "west", "south", "east", "north", "leaving", "arriving", "grammesCO2saved",
-#' "calories", "edition", "geometry")
-#' ```
 #'
-#' @param from Longitude/Latitude pair, e.g. `c(-1.55, 53.80)`
-#' @param to Longitude/Latitude pair, e.g. `c(-1.55, 53.80)`
-#' @param plan Text strong of either "fastest" (default), "quietest" or "balanced"
+#' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)`
+#' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)`
+#' @param type Type of routing can be car, cycle, public (DEFAULT)
+#' @param modes Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
+#' @param not_modes Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
+#' @param service Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)
 #' @param silent Logical (default is FALSE). TRUE hides request sent.
-#' @param pat The API key used. By default this uses `Sys.getenv("CYCLESTREETS")`.
+#' @param app_id The app id used. By default this uses `Sys.getenv("TRANSPORTAPI_app_id")`.
+#' @param app_key The app key used. By default this uses `Sys.getenv("TRANSPORTAPI_app_key")`.
 #' @param base_url The base url from which to construct API requests
 #' (with default set to main server)
 #' @param reporterrors Boolean value (TRUE/FALSE) indicating if cyclestreets (TRUE by default).
 #' should report errors (FALSE by default).
 #' @param save_raw Boolean value which returns raw list from the json if TRUE (FALSE by default).
 #' @inheritParams json2sf_cs
-#' @seealso json2sf_cs
+#' @seealso json2sf_tapi
 #' @export
 #' @examples
 #' \dontrun{
-#' from = c(-1.55, 53.80) # geo_code("leeds")
-#' to = c(-1.76, 53.80) # geo_code("bradford uk")
+#' from = c(-0.134649,51.529258) # Euston Station
+#' to = c(-0.088780,51.506383) # Bridge House
 #' r1 = journey(from, to)
 #' sf:::plot.sf(r1)
 #' to = c(-2, 53.5) # towards manchester
@@ -51,52 +45,73 @@
 #' r4 = journey(from, to, save_raw = TRUE)
 #' r5 = journey(from, to, cols = NULL)
 #' }
-journey <- function(from, to, plan = "fastest", silent = TRUE,
-                    pat = NULL,
-                    base_url = "https://www.cyclestreets.net",
-                    reporterrors = TRUE,
-                    save_raw = "FALSE",
-                    cols = c(
-                      "name",
-                      "distances",
-                      "time",
-                      "busynance",
-                      "elevations",
-                      "start_longitude",
-                      "start_latitude",
-                      "finish_longitude",
-                      "finish_latitude"
-                    )) {
+journey <- function(from, to,
+                    type = "public",
+                    modes = NULL,
+                    not_modes = NULL,
+                    service = NULL,
+                    silent = TRUE,
+                    app_id = NULL,
+                    app_key = NULL,
+                    base_url = "http://transportapi.com/",
+                    save_raw = FALSE
+                    ) {
 
-  if(is.null(pat)) pat = Sys.getenv("CYCLESTREETS")
+  if(is.null(app_id)) app_id = Sys.getenv("TRANSPORTAPI_app_id")
+  if(is.null(app_key)) app_key = Sys.getenv("TRANSPORTAPI_app_key")
   orig <- paste0(from, collapse = ",")
   dest <- paste0(to, collapse = ",")
-  ft_string <- paste(orig, dest, sep = "|")
 
-  httrmsg = httr::modify_url(
-    base_url,
-    path = "api/journey.json",
-    query = list(
-      key = pat,
-      itinerarypoints = ft_string,
-      plan = plan,
-      reporterrors = ifelse(reporterrors == TRUE, 1, 0)
+  ft_string <- paste("v3/uk/",type,"/journey/from/lonlat:", orig , "/to/lonlat:" , dest, ".json" , sep = "")
+
+  #Select Routing API
+  if(type == "public"){
+    httrmsg = httr::modify_url(
+      base_url,
+      path = ft_string,
+      query = list(
+        app_id = app_id,
+        app_key = app_key,
+        modes = modes,
+        not_modes = not_modes,
+        service = service
+      )
     )
-  )
+  }else if(type == "car"){
+    httrmsg = httr::modify_url(
+      base_url,
+      path = ft_string,
+      query = list(
+        app_id = app_id,
+        app_key = app_key
+      )
+    )
+  }else if(type == "cycle"){
+    httrmsg = httr::modify_url(
+      base_url,
+      path = ft_string,
+      query = list(
+        app_id = app_id,
+        app_key = app_key
+      )
+    )
+  }else{
+    stop("Error: Invalid routing type, use 'car','public', or 'cycle'")
+  }
 
   if (silent == FALSE) {
-    print(paste0("The request sent to cyclestreets.net was: ", httrmsg))
+    print(paste0("The request sent to transportapi.com was: ", httrmsg))
   }
 
   httrreq <- httr::GET(httrmsg)
 
   if (grepl('application/json', httrreq$headers$`content-type`) == FALSE) {
-    stop("Error: CycleStreets did not return a valid result")
+    stop("Error: transportapi.com did not return a valid result")
   }
 
   txt <- httr::content(httrreq, as = "text", encoding = "UTF-8")
   if (txt == "") {
-    stop("Error: CycleStreets did not return a valid result")
+    stop("Error: transportapi.com did not return a valid result")
   }
 
   obj <- jsonlite::fromJSON(txt, simplifyDataFrame = TRUE)
@@ -105,21 +120,16 @@ journey <- function(from, to, plan = "fastest", silent = TRUE,
     stop(paste0("Error: ", obj$error))
   }
 
-  if(save_raw) {
-    return(obj)
-  } else {
-    r = json2sf_cs(obj, cols = cols)
+  if(!save_raw) {
+    obj = json2sf_tapi(obj,type)
   }
-  r
+  return(obj)
 }
 
-txt2coords = function(txt) { # helper function to document...
-  coords_split <- stringr::str_split(txt, pattern = " |,")[[1]]
-  matrix(as.numeric(coords_split), ncol = 2, byrow = TRUE)
-}
-#' Convert output from CycleStreets.net into sf object
+
+#' Convert output from transportapi.com into sf object
 #'
-#' @param obj Object from CycleStreets.net read-in with
+#' @param obj Object from transportapi.com read-in with
 #' @param cols Columns to be included in the result, a character vector or `NULL` for all available columns (see details for default)
 #' @export
 #' @examples
@@ -133,61 +143,54 @@ txt2coords = function(txt) { # helper function to document...
 #' rsf = json2sf_cs(obj)
 #' sf:::plot.sf(rsf)
 #' json2sf_cs(obj, cols = c("time", "busynance", "elevations"))
-json2sf_cs <- function(obj, cols = NULL) {
-  coord_list = lapply(obj$marker$`@attributes`$points[-1], txt2coords)
-  rsfl = lapply(coord_list, sf::st_linestring) %>%
-    sf::st_sfc()
+json2sf_tapi <- function(obj,type) {
+  if(type == "public"){
+    # Extract routes
+    routes = obj$routes
+    route_parts = routes$route_parts
+    routes$route_parts = NULL
+    names(routes) = paste0("route_",names(routes))
 
-  # variables - constant
-  n_segs = length(rsfl)
-  cols_na = sapply(obj$marker$`@attributes`, function(x) sum(is.na(x)))
-  sel_constant = cols_na == n_segs &
-    names(cols_na) != "coordinates"
-  cols_constant = names(cols_na)[sel_constant]
-  vals_constant = lapply(cols_constant, function(x)
-    obj$marker$`@attributes`[[x]][1])
-  names(vals_constant) = cols_constant
-  suppressWarnings({
-    vals_numeric = lapply(vals_constant, as.numeric)
-  })
-  sel_numeric = !is.na(vals_numeric)
-  vals_constant[sel_numeric] = vals_numeric[sel_numeric]
-  d_constant = data.frame(vals_constant)[rep(1, n_segs), ]
+    names(route_parts) = 1:length(route_parts) # Name each route option
+    route_parts = do.call("rbind",route_parts) # bind into a single df
+    geometry = lapply(route_parts$coordinates, sf::st_linestring) %>% # convert to sf
+      sf::st_sfc()
+    route_parts$geometry = geometry #add to df
+    route_parts$coordinates = NULL #remove old coordiantes
+    route_parts$route_option = as.integer(sub('\\..*', '', rownames(route_parts)))
+    route_parts$route_stage = as.integer(sub('.*\\.', '', rownames(route_parts)))
 
-  # useful cols: busynance, name, elevations, distances, turn,provisionName
+    # Add in global values
 
-  sel_variable = cols_na == 0 &
-    !grepl("startBearing|type", names(cols_na))
-  cols_variable = names(cols_na)[sel_variable]
-  vals_variable = lapply(cols_variable, function(x)
-    obj$marker$`@attributes`[[x]][-1])
-  names(vals_variable) = cols_variable
-  # vals_variable # take a look - which ones to process?
-  vals_variable$elevations = stringr::str_split(vals_variable$elevations, pattern = ",") %>%
-    lapply(as.numeric) %>%
-    lapply(mean) %>%
-    unlist()
-  vals_variable$distances = stringr::str_split(vals_variable$distances, pattern = ",") %>%
-    lapply(as.numeric) %>%
-    lapply(sum) %>%
-    unlist()
-  suppressWarnings({
-    vals_vnumeric = lapply(vals_variable, as.numeric)
-  })
-  vals_vnumeric$name = vals_variable$name
-  d_variable = data.frame(vals_vnumeric)
+    routes$request_time = obj$request_time
+    routes$source = obj$source
+    routes$acknowledgements = obj$acknowledgements
+    #routes$route_option = as.integer(rownames(routes))
 
-  d_all = cbind(d_variable, d_constant)
+    routes = routes[route_parts$route_option,]
+    routes = cbind(routes,route_parts)
 
-  if(!is.null(cols)) {
-    d_all = d_all[cols]
+    routes = sf::st_as_sf(routes)
+    st_crs(routes) = 4326
+
+    return(routes)
+
+  }else if(type %in% c("car","cycle")){
+    # Extract routes
+    routes = obj$routes
+    geometry = lapply(routes$coordinates, sf::st_linestring) %>% # convert to sf
+      sf::st_sfc()
+    routes$geometry = geometry #add to df
+    routes$coordinates = NULL #remove old coordiantes
+    routes$request_time = obj$request_time
+    routes$source = obj$source
+    routes$acknowledgements = obj$acknowledgements
+
+    routes = sf::st_as_sf(routes)
+    st_crs(routes) = 4326
+
+    return(routes)
+  }else{
+    stop("Error: Invalid routing type, use 'car','public', or 'cycle'")
   }
-
-  # todo: create more segment-level statistics (vectors) +
-  # add them to the data frame (d) below
-
-  rsf = sf::st_sf(d_all, geometry = rsfl, crs = 4326)
-
-  return(rsf)
-
 }
