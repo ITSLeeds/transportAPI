@@ -2,5 +2,5 @@
 
 export("%>%")
 export(journey)
-export(json2sf_cs)
+export(json2sf_tapi)
 importFrom(magrittr,"%>%")
