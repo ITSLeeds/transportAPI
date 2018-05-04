@@ -129,10 +129,18 @@ journey <- function(from, to,
     stop(paste0("Error: ", obj$error))
   }
 
-  if(!save_raw) {
-    obj = json2sf_tapi(obj,apitype)
+  if(length(obj$routes) == 0){
+    warning("Error: transportapi.com was unable to find a route")
+    return(NA)
+  }else{
+    if(!save_raw) {
+      obj = json2sf_tapi(obj,apitype)
+    }
+    return(obj)
   }
-  return(obj)
+
+
+
 }
 
 
