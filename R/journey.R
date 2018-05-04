@@ -15,10 +15,13 @@
 #'
 #' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)`
 #' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)`
-#' @param type Type of routing can be car, cycle, public (DEFAULT)
-#' @param modes (type = "public" only) Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
-#' @param not_modes (type = "public" only) Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
-#' @param service (type = "public" only) Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)
+#' @param apitype Type of routing can be car, cycle, public (DEFAULT)
+#' @param modes (apitype = "public" only) Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
+#' @param not_modes (apitype = "public" only) Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
+#' @param service (apitype = "public" only) Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)
+#' @param date (apitype = "public" only) Specifies the date of travel.
+#' @param time (apitype = "public" only) Specifies the time of travel.
+#' @param type (apitype = "public" only) if 'at', then look for the next journey that departs at or after the specified date/time if 'by', then look for the last journey that arrives by or before the specified date/time
 #' @param silent Logical (default is FALSE). TRUE hides request sent.
 #' @param app_id The app id used. By default this uses `Sys.getenv("TRANSPORTAPI_app_id")`.
 #' @param app_key The app key used. By default this uses `Sys.getenv("TRANSPORTAPI_app_key")`.
@@ -33,13 +36,16 @@
 #' from = c(-0.134649,51.529258) # Euston Station
 #' to = c(-0.088780,51.506383) # Bridge House
 #' r1 = journey(from, to)
-#' r2 = journey(from, to, type = "car")
+#' r2 = journey(from, to, apitype = "car")
 #' }
 journey <- function(from, to,
-                    type = "public",
+                    apitype = "public",
                     modes = NULL,
                     not_modes = NULL,
                     service = NULL,
+                    date = NULL,
+                    time = NULL,
+                    type = NULL,
                     silent = TRUE,
                     app_id = NULL,
                     app_key = NULL,
@@ -52,10 +58,23 @@ journey <- function(from, to,
   orig <- paste0(from, collapse = ",")
   dest <- paste0(to, collapse = ",")
 
-  ft_string <- paste("v3/uk/",type,"/journey/from/lonlat:", orig , "/to/lonlat:" , dest, ".json" , sep = "")
+  if(!is.null(date) & !is.null(time) & !is.null(type) & apitype == "public"){
+    # Routing by public transport at a specific time
+    ft_string <- paste("v3/uk/",apitype,"/journey/from/lonlat:",orig,"/to/lonlat:",dest,"/",type,"/",date,"/",time,".json" , sep = "")
+
+
+  }else if(is.null(date) & is.null(time) & is.null(type)){
+    # Not using the time variaibles
+    ft_string <- paste("v3/uk/",apitype,"/journey/from/lonlat:", orig , "/to/lonlat:" , dest, ".json" , sep = "")
+
+  }else{
+    stop("Error: When using date/time variaibles either specify date & time & type & apitype == 'public' or leave as NULL for immediate departure")
+  }
+
+
 
   #Select Routing API
-  if(type == "public"){
+  if(apitype == "public"){
     httrmsg = httr::modify_url(
       base_url,
       path = ft_string,
@@ -67,7 +86,7 @@ journey <- function(from, to,
         service = service
       )
     )
-  }else if(type == "car"){
+  }else if(apitype == "car"){
     httrmsg = httr::modify_url(
       base_url,
       path = ft_string,
@@ -76,7 +95,7 @@ journey <- function(from, to,
         app_key = app_key
       )
     )
-  }else if(type == "cycle"){
+  }else if(apitype == "cycle"){
     httrmsg = httr::modify_url(
       base_url,
       path = ft_string,
@@ -86,7 +105,7 @@ journey <- function(from, to,
       )
     )
   }else{
-    stop("Error: Invalid routing type, use 'car','public', or 'cycle'")
+    stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
   }
 
   if (silent == FALSE) {
@@ -111,7 +130,7 @@ journey <- function(from, to,
   }
 
   if(!save_raw) {
-    obj = json2sf_tapi(obj,type)
+    obj = json2sf_tapi(obj,apitype)
   }
   return(obj)
 }
@@ -125,8 +144,8 @@ journey <- function(from, to,
 #' @examples
 #' None
 #'
-json2sf_tapi <- function(obj,type) {
-  if(type == "public"){
+json2sf_tapi <- function(obj,apitype) {
+  if(apitype == "public"){
     # Extract routes
     routes = obj$routes
     route_parts = routes$route_parts
@@ -157,7 +176,7 @@ json2sf_tapi <- function(obj,type) {
 
     return(routes)
 
-  }else if(type %in% c("car","cycle")){
+  }else if(apitype %in% c("car","cycle")){
     # Extract routes
     routes = obj$routes
     geometry = lapply(routes$coordinates, sf::st_linestring) %>% # convert to sf
@@ -173,6 +192,6 @@ json2sf_tapi <- function(obj,type) {
 
     return(routes)
   }else{
-    stop("Error: Invalid routing type, use 'car','public', or 'cycle'")
+    stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
   }
 }
