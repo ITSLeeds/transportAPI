@@ -64,8 +64,8 @@ journey = function(from, to,
     # SF Points
     if(length(from) == 1){
       if(is.na(st_crs(from)[[1]])){
-        to = st_transform(to, 4326)
-        message("Reprojecting to to lat/lng coordinates")
+        from = st_transform(from, 4326)
+        message("Reprojecting from to lat/lng coordinates")
       }
       if(st_crs(from)[[1]] != 4326){
         from = st_transform(from, 4326)
