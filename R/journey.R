@@ -245,23 +245,18 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
 
     # Get routes
     routes = journey(from = from.i, to = to.i, ...)
-    message(i)
-    message(class(routes))
-    message(class(fromid[i]))
 
     #If aviaible assing from and to ids
-    if("logical" %in% class(routes)){ #Check class as is.na() check every element in a dataframe and returns a warning
+    if(!"logical" %in% class(routes)){ #Check class as is.na() check every element in a dataframe and returns a warning
       if(!is.null(fromid)){
-        routes$fromid = fromid[[i]]
+        routes$fromid = fromid[i]
       }
       if(!is.null(toid)){
-        routes$toid = toid[[i]]
+        routes$toid = toid[i]
       }
     }
-    message(class(routes$fromid))
     results[[i]] = routes
-    print(routes)
-    rm(routes)
+    rm(routes,from.i,to.i)
   }
   results <- results[!is.na(results)]
   suppressWarnings(results <- bind_rows(results))
