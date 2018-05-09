@@ -245,7 +245,7 @@ journey.batch = function(from, to, ...){
     results[[i]] = routes
 
   }
-
+  results <- results[!is.na(results)]
   results <- bind_rows(results)
   #rebuild the sf object
   results <- as.data.frame(results)
