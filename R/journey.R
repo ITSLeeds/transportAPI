@@ -82,7 +82,7 @@ journey = function(from, to,
 
   if("numeric" %in%  class(to)){
     # Plain Numers
-    orig <- paste0(to, collapse = ",")
+    dest <- paste0(to, collapse = ",")
   }else if(all(c("sfc_POINT", "sfc") %in% class(to))){
     # SF Points
     if(length(to) == 1){
@@ -95,7 +95,7 @@ journey = function(from, to,
         message("Reprojecting to to lat/lng coordinates")
       }
 
-      orig <- paste0(c(to[1][[1]][1],to[1][[1]][2]), collapse = ",")
+      dest <- paste0(c(to[1][[1]][1],to[1][[1]][2]), collapse = ",")
     }else{
       stop("Error: More than one point provided for to")
     }
