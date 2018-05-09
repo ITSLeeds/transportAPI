@@ -275,7 +275,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE,
     }
 
     # Get routes
-    routes = journey(from = from.i, to = to.i, ...)
+    routes = journey(from = from.i, to = to.i, save_raw = save_raw, ...)
 
     #If aviaible assing from and to ids
     if("logical" %in% class(routes)){#Check class as is.na() check every element in a dataframe and returns a warning
