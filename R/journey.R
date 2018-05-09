@@ -13,8 +13,8 @@
 #' This can be set with `usethis::edit_r_environ()`.
 #'
 #'
-#' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)`
-#' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)`
+#' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)` or SF points of class "sfc_POINT" "sfc" and length one
+#' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)` or SF points of class "sfc_POINT" "sfc" and length one
 #' @param apitype Type of routing can be car, cycle, public (DEFAULT)
 #' @param modes (apitype = "public" only) Restricts the transport modes which can be used for routing to only the ones provided by this parameter.
 #' @param not_modes (apitype = "public" only) Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.
@@ -38,7 +38,7 @@
 #' r1 = journey(from, to)
 #' r2 = journey(from, to, apitype = "car")
 #' }
-journey <- function(from, to,
+journey = function(from, to,
                     apitype = "public",
                     modes = NULL,
                     not_modes = NULL,
@@ -55,8 +55,46 @@ journey <- function(from, to,
 
   if(is.null(app_id)) app_id = Sys.getenv("TRANSPORTAPI_app_id")
   if(is.null(app_key)) app_key = Sys.getenv("TRANSPORTAPI_app_key")
-  orig <- paste0(from, collapse = ",")
-  dest <- paste0(to, collapse = ",")
+
+  # Prepare the input format
+  if("numeric" %in%  class(from)){
+    # Plain Numers
+    orig <- paste0(from, collapse = ",")
+  }else if(all(c("sfc_POINT", "sfc") %in% class(from))){
+    # SF Points
+    if(length(from) == 1){
+      if(st_crs(from)[[1]] != 4326){
+        from = st_transform(from, 4326)
+        message("Reprojecting from to lat/lng coordinates")
+      }
+
+      orig <- paste0(c(from[1][[1]][1],from[1][[1]][2]), collapse = ",")
+    }else{
+      stop("Error: More than one point provided for from")
+    }
+  }else{
+    stop("Error: Unknown input type for from, use numeric vector or sfc_POINT")
+  }
+
+  if("numeric" %in%  class(to)){
+    # Plain Numers
+    orig <- paste0(to, collapse = ",")
+  }else if(all(c("sfc_POINT", "sfc") %in% class(to))){
+    # SF Points
+    if(length(to) == 1){
+      if(st_crs(to)[[1]] != 4326){
+        to = st_transform(to, 4326)
+        message("Reprojecting to to lat/lng coordinates")
+      }
+
+      orig <- paste0(c(to[1][[1]][1],to[1][[1]][2]), collapse = ",")
+    }else{
+      stop("Error: More than one point provided for to")
+    }
+  }else{
+    stop("Error: Unknown input type for to, use numeric vector or sfc_POINT")
+  }
+
 
   if(!is.null(date) & !is.null(time) & !is.null(type) & apitype == "public"){
     # Routing by public transport at a specific time
@@ -143,16 +181,87 @@ journey <- function(from, to,
 
 }
 
-
-#' Convert output from transportapi.com into sf object
+#' Wrapper for jounrey fuction to perform multiple routings
 #'
-#' @param obj Object from transportapi.com read-in with
-#' @param cols Columns to be included in the result, a character vector or `NULL` for all available columns (see details for default)
+#' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)` or SF points of class "sfc_POINT" "sfc" and length one
+#' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)` or SF points of class "sfc_POINT" "sfc" and length one
 #' @export
 #' @examples
 #' None
 #'
-json2sf_tapi <- function(obj,apitype) {
+journey.batch = function(from, to, ...){
+  # check valid input types
+  if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
+    stop("Error: Invalid input type for from")
+  }
+  method.from == class(from)[1]
+
+  if(!all(class(to) %in% c("matrix","sfc_POINT","sfc"))){
+    stop("Error: Invalid input type for from")
+  }
+  method.to == class(to)[1]
+
+  # Check the same number of Oigins and Destinations
+  if(length(from) != length(to)){
+    stop("Error: length(from) != length(to)")
+  }
+
+
+  if(method.from == "matrix"){
+    niter = nrow(from)
+  }else if(method.from == "sfc_POINT"){
+    niter = length(from)
+  }
+
+  results = list()
+
+  for(i in seq(1:niter)){
+    #Extract the Oridign and Destiantion for this trip
+    if(method.from == "matrix"){
+      from.i = unlist(from[i,])
+    }else if(method.from == "sfc_POINT"){
+      from.i = from[i]
+    }else{
+      stop("Error: SERIOUS ERROR CODE 1")
+    }
+
+    if(method.to == "matrix"){
+      to.i = unlist(to[i,])
+    }else if(method.to== "sfc_POINT"){
+      to.i = to[i]
+    }else{
+      stop("Error: SERIOUS ERROR CODE 2")
+    }
+
+    routes = journey(from = from.i, to = to.i, ...)
+    results[[i]] = routes
+
+  }
+
+  results <- bind_rows(results)
+  #rebuild the sf object
+  results <- as.data.frame(results)
+  results$geometry <- st_sfc(results$geometry)
+  results <- st_sf(results)
+  st_crs(results) <- 4326
+
+  return(results)
+}
+
+
+
+
+
+
+#' Convert output from transportapi.com into sf object
+#'
+#' @param obj Object from transportapi.com read-in with
+#' @param apitype Type of routing can be car, cycle, public (DEFAULT)
+#' @export
+#' @examples
+#' None
+#'
+json2sf_tapi = function(obj,apitype) {
   if(apitype == "public"){
     # Extract routes
     routes = obj$routes
