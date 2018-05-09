@@ -1,23 +1,25 @@
 
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robinlovelace/cyclestreets?branch=master&svg=true)](https://ci.appveyor.com/project/robinlovelace/cyclestreets)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robinlovelace/transportAPI?branch=master&svg=true)](https://ci.appveyor.com/project/robinlovelace/transportAPI)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-cyclestreets
+transportAPI
 ============
 
-The goal of cyclestreets is to provide a simple R interface to the CycleStreets.net routing service.
+The goal of transportAPI is to provide a simple R interface to the transportAPI.net routing service.
 
 It was split-out from **stplanr** for modularity.
+
+Currently only the jounrney planner APIs are supported.
 
 Installation
 ------------
 
-<!-- You can install the released version of cyclestreets from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- You can install the released version of transportAPI from [CRAN](https://CRAN.R-project.org) with: -->
 Install the package with **devtools** as follows:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("Robinlovelace/cyclestreets")
+devtools::install_github("mem48/transportAPI")
 ```
 
 Example
@@ -26,36 +28,41 @@ Example
 A common need is to get from A to B:
 
 ``` r
-library ("cyclestreets")
-# stplanr::geo_code ("leeds rail station") 
-from = c(-1.544, 53.794)
-# stplanr::geo_code ("leeds university") 
-to = c(-1.551, 53.807)
-r = cyclestreets::journey(from, to, "balanced")
-sf:::plot.sf(r)
+library(transportAPI)
+library(sf)
+#> Warning: package 'sf' was built under R version 3.4.4
+#> Linking to GEOS 3.6.1, GDAL 2.2.3, proj.4 4.9.3
+library(dplyr)
+#> Warning: package 'dplyr' was built under R version 3.4.2
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+from = c(-0.432, 51.52)
+to = c(0.012, 51.52)
+r.public = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/")
+sf:::plot.sf(r.public[r.public$route_option == 1,"mode"], lwd = 3)
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" />
 
-To get a key go to <https://www.cyclestreets.net/api/apply/>
+``` r
+r.car = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/", apitype = "car")
+sf:::plot.sf(r.car[,"mode"], lwd = 3)
+```
 
-Save the key as an environment varible using `export CYCLESTREETS=your_key_here` by adding `CYCLESTREETS=your_key_here` as a new line in your `.Renviron` file, e.g. with the following command:
+<img src="man/figures/README-unnamed-chunk-1-2.png" width="100%" />
+
+To get a key go to <https://developer.transportapi.com/>
+
+Save the key as an environment varible using `export TRANSPORTAPI_app_id=your_id_here` by adding `TRANSPORTAPI_app_id=your_id_here` as a new line in your `.Renviron` file and `TRANSPORTAPI_app_key=your_key_here`, e.g. with the following command:
 
 ``` r
 usethis::edit_r_environ()
 ```
 
-Check the map is good with leaflet:
-
-``` r
-library(leaflet)
-p = colorNumeric("RdYlBu", domain = r$busynance, reverse = TRUE)
-leaflet(r) %>% 
-  addTiles() %>% 
-  addPolylines(color = ~p(busynance), weight = 20, opacity = 0.9) %>% 
-  addLegend(pal = p, values = ~busynance)
-```
-
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
-
-Route types available are: fastest, quietest, balanced. See help pages such as `?journey` and <https://www.cyclestreets.net/api/> for details.
+Route types available are: public, car, cycle See help pages such as `?journey` and <https://developer.transportapi.com/> for details.

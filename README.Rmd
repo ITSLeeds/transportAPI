@@ -20,6 +20,8 @@ The goal of transportAPI is to provide a simple R interface to the transportAPI.
 
 It was split-out from **stplanr** for modularity.
 
+Currently only the jounrney planner APIs are supported.
+
 ## Installation
 
 <!-- You can install the released version of transportAPI from [CRAN](https://CRAN.R-project.org) with: -->
@@ -34,14 +36,17 @@ devtools::install_github("mem48/transportAPI")
 
 A common need is to get from A to B:
 
-```{r example}
-library ("transportAPI")
-# stplanr::geo_code ("leeds rail station") 
-from = c(-1.544, 53.794)
-# stplanr::geo_code ("leeds university") 
-to = c(-1.551, 53.807)
-r = transportAPI::journey(from, to)
-sf:::plot.sf(r)
+```{r}
+library(transportAPI)
+library(sf)
+library(dplyr)
+from = c(-0.432, 51.52)
+to = c(0.012, 51.52)
+r.public = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/")
+sf:::plot.sf(r.public[r.public$route_option == 1,"mode"], lwd = 3)
+r.car = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/", apitype = "car")
+sf:::plot.sf(r.car[,"mode"], lwd = 3)
+
 ```
 
 To get a key go to https://developer.transportapi.com/
