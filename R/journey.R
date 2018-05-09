@@ -300,13 +300,16 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
     results[[i]] = routes
     rm(routes,from.i,to.i)
   }
-  results <- results[!is.na(results)]
-  suppressWarnings(results <- bind_rows(results))
-  #rebuild the sf object
-  results <- as.data.frame(results)
-  results$geometry <- st_sfc(results$geometry)
-  results <- st_sf(results)
-  st_crs(results) <- 4326
+
+  if(!save_raw){
+    results <- results[!is.na(results)]
+    suppressWarnings(results <- bind_rows(results))
+    #rebuild the sf object
+    results <- as.data.frame(results)
+    results$geometry <- st_sfc(results$geometry)
+    results <- st_sf(results)
+    st_crs(results) <- 4326
+  }
 
   return(results)
 }
