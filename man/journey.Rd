@@ -2,73 +2,64 @@
 % Please edit documentation in R/journey.R
 \name{journey}
 \alias{journey}
-\title{Plan a journey with CycleStreets.net}
+\title{Plan a journey with transportAPI}
 \usage{
-journey(from, to, plan = "fastest", silent = TRUE, pat = NULL,
-  base_url = "https://www.cyclestreets.net", reporterrors = TRUE,
-  save_raw = "FALSE", cols = c("name", "distances", "time", "busynance",
-  "elevations", "start_longitude", "start_latitude", "finish_longitude",
-  "finish_latitude"))
+journey(from, to, apitype = "public", modes = NULL, not_modes = NULL,
+  service = NULL, date = NULL, time = NULL, type = NULL,
+  silent = TRUE, app_id = NULL, app_key = NULL,
+  base_url = "http://transportapi.com/", save_raw = FALSE)
 }
 \arguments{
-\item{from}{Longitude/Latitude pair, e.g. \code{c(-1.55, 53.80)}}
+\item{from}{Longitude/Latitude pair, e.g. \code{c(-0.134649,51.529258)} or SF points of class "sfc_POINT" "sfc" and length one}
 
-\item{to}{Longitude/Latitude pair, e.g. \code{c(-1.55, 53.80)}}
+\item{to}{Longitude/Latitude pair, e.g. \code{c(-0.088780,51.506383)} or SF points of class "sfc_POINT" "sfc" and length one}
 
-\item{plan}{Text strong of either "fastest" (default), "quietest" or "balanced"}
+\item{apitype}{Type of routing can be car, cycle, public (DEFAULT)}
+
+\item{modes}{(apitype = "public" only) Restricts the transport modes which can be used for routing to only the ones provided by this parameter.}
+
+\item{not_modes}{(apitype = "public" only) Restricts the transport modes which can be used for routing to all modes except the ones provided by this parameter.}
+
+\item{service}{(apitype = "public" only) Specifies the which backend system journey plans should be requested from ('region' param is an alias now deprecated)}
+
+\item{date}{(apitype = "public" only) Specifies the date of travel.}
+
+\item{time}{(apitype = "public" only) Specifies the time of travel.}
+
+\item{type}{(apitype = "public" only) if 'at', then look for the next journey that departs at or after the specified date/time if 'by', then look for the last journey that arrives by or before the specified date/time}
 
 \item{silent}{Logical (default is FALSE). TRUE hides request sent.}
 
-\item{pat}{The API key used. By default this uses \code{Sys.getenv("CYCLESTREETS")}.}
+\item{app_id}{The app id used. By default this uses \code{Sys.getenv("TRANSPORTAPI_app_id")}.}
+
+\item{app_key}{The app key used. By default this uses \code{Sys.getenv("TRANSPORTAPI_app_key")}.}
 
 \item{base_url}{The base url from which to construct API requests
 (with default set to main server)}
 
-\item{reporterrors}{Boolean value (TRUE/FALSE) indicating if cyclestreets (TRUE by default).
-should report errors (FALSE by default).}
-
 \item{save_raw}{Boolean value which returns raw list from the json if TRUE (FALSE by default).}
-
-\item{cols}{Columns to be included in the result, a character vector or \code{NULL} for all available columns (see details for default)}
 }
 \description{
-R interface to the CycleStreets.net journey planning API,
+R interface to the transportAPI journey planning API,
 a route planner made by cyclists for cyclists.
-See \href{https://www.cyclestreets.net/api/}{cyclestreets.net/api} for details.
+See \href{https://developer.transportapi.com/docs}{developer.transportapi.com/docs} for details.
 }
 \details{
-Requires the internet and a CycleStreets.net API key.
-CycleStreets.net does not yet work worldwide.
+Requires the internet and a transportapi.com API key.
+transportapi.com does not yet work worldwide.
 
-You need to have an api key for this code to run.
-By default it uses the CYCLESTREETS environment variable.
+You need to have an api key and app id for this code to run.
+By default it uses the TRANSPORTAPI_app_id and  TRANSPORTAPI_app_key environment variable.
 This can be set with \code{usethis::edit_r_environ()}.
-
-A full list of variables (\code{cols}) available is represented by:\preformatted{c("time", "busynance", "signalledJunctions", "signalledCrossings",
-"name", "walk", "elevations", "distances", "start", "finish",
-"startSpeed", "start_longitude", "start_latitude", "finish_longitude",
-"finish_latitude", "crow_fly_distance", "event", "whence", "speed",
-"itinerary", "clientRouteId", "plan", "note", "length", "quietness",
-"west", "south", "east", "north", "leaving", "arriving", "grammesCO2saved",
-"calories", "edition", "geometry")
-}
 }
 \examples{
 \dontrun{
-from = c(-1.55, 53.80) # geo_code("leeds")
-to = c(-1.76, 53.80) # geo_code("bradford uk")
+from = c(-0.134649,51.529258) # Euston Station
+to = c(-0.088780,51.506383) # Bridge House
 r1 = journey(from, to)
-sf:::plot.sf(r1)
-to = c(-2, 53.5) # towards manchester
-r1 = journey(from, to)
-r2 = journey(from, to, plan = "balanced")
-plot(r1["busynance"], reset = FALSE)
-plot(r2["busynance"], add = TRUE)
-r3 = journey(from, to, silent = FALSE)
-r4 = journey(from, to, save_raw = TRUE)
-r5 = journey(from, to, cols = NULL)
+r2 = journey(from, to, apitype = "car")
 }
 }
 \seealso{
-json2sf_cs
+json2sf_tapi
 }
