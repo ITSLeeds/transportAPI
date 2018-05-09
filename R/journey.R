@@ -247,11 +247,13 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
     routes = journey(from = from.i, to = to.i, ...)
 
     #If aviaible assing from and to ids
-    if(!is.null(fromid)){
-      routes$fromid = fromid[i]
-    }
-    if(!is.null(toid)){
-      routes$toid = toid[i]
+    if(!is.na(routes)){
+      if(!is.null(fromid)){
+        routes$fromid = fromid[i]
+      }
+      if(!is.null(toid)){
+        routes$toid = toid[i]
+      }
     }
 
     results[[i]] = routes
