@@ -63,6 +63,10 @@ journey = function(from, to,
   }else if(all(c("sfc_POINT", "sfc") %in% class(from))){
     # SF Points
     if(length(from) == 1){
+      if(is.na(st_crs(from)[[1]])){
+        to = st_transform(to, 4326)
+        message("Reprojecting to to lat/lng coordinates")
+      }
       if(st_crs(from)[[1]] != 4326){
         from = st_transform(from, 4326)
         message("Reprojecting from to lat/lng coordinates")
@@ -82,6 +86,10 @@ journey = function(from, to,
   }else if(all(c("sfc_POINT", "sfc") %in% class(to))){
     # SF Points
     if(length(to) == 1){
+      if(is.na(st_crs(to)[[1]])){
+        to = st_transform(to, 4326)
+        message("Reprojecting to to lat/lng coordinates")
+      }
       if(st_crs(to)[[1]] != 4326){
         to = st_transform(to, 4326)
         message("Reprojecting to to lat/lng coordinates")
