@@ -194,12 +194,12 @@ journey.batch = function(from, to, ...){
   if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
     stop("Error: Invalid input type for from")
   }
-  method.from == class(from)[1]
+  method.from = class(from)[1]
 
   if(!all(class(to) %in% c("matrix","sfc_POINT","sfc"))){
     stop("Error: Invalid input type for from")
   }
-  method.to == class(to)[1]
+  method.to = class(to)[1]
 
   # Check the same number of Oigins and Destinations
   if(length(from) != length(to)){
