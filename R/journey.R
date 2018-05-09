@@ -230,7 +230,7 @@ journey = function(from, to,
 #' @examples
 #' None
 #'
-journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
+journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE, ...){
   # check valid input types
   if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
     stop("Error: Invalid input type for from")
