@@ -176,7 +176,7 @@ journey = function(from, to,
   }
 
   if(length(obj$routes) == 0){
-    warning("Error: transportapi.com was unable to find a route")
+    warning(paste0("Error: transportapi.com was unable to find a route between ",orig," and ",dest))
     return(NA)
   }else{
     if(!save_raw) {
@@ -247,7 +247,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
     routes = journey(from = from.i, to = to.i, ...)
 
     #If aviaible assing from and to ids
-    if(!is.na(routes)){
+    if("logical" %in% class(routes)){ #Check class as is.na() check every element in a dataframe and returns a warning
       if(!is.null(fromid)){
         routes$fromid = fromid[i]
       }
