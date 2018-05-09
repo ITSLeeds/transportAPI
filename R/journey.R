@@ -253,7 +253,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
     }else if("character" %in% class(routes)){
       # Returning error message means rate limit reached, so stop trying
       warning("Rate limit cap detected aborting futher attempts")
-      next
+      break
     }else{
       if(!is.null(fromid)){
         routes$fromid = fromid[i]
