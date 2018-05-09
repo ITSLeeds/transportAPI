@@ -120,39 +120,69 @@ journey = function(from, to,
 
 
   #Select Routing API
-  if(apitype == "public"){
-    httrmsg = httr::modify_url(
-      base_url,
-      path = ft_string,
-      query = list(
-        app_id = app_id,
-        app_key = app_key,
-        modes = modes,
-        not_modes = not_modes,
-        service = service
+  if(base_url == "http://fcc.transportapi.com/"){
+    if(apitype == "public"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string,
+        query = list(
+          modes = modes,
+          not_modes = not_modes,
+          service = service
+        )
       )
-    )
-  }else if(apitype == "car"){
-    httrmsg = httr::modify_url(
-      base_url,
-      path = ft_string,
-      query = list(
-        app_id = app_id,
-        app_key = app_key
+    }else if(apitype == "car"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string
       )
-    )
-  }else if(apitype == "cycle"){
-    httrmsg = httr::modify_url(
-      base_url,
-      path = ft_string,
-      query = list(
-        app_id = app_id,
-        app_key = app_key
+    }else if(apitype == "cycle"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string
       )
-    )
+    }else{
+      stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
+    }
   }else{
-    stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
+    if(apitype == "public"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string,
+        query = list(
+          app_id = app_id,
+          app_key = app_key,
+          modes = modes,
+          not_modes = not_modes,
+          service = service
+        )
+      )
+    }else if(apitype == "car"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string,
+        query = list(
+          app_id = app_id,
+          app_key = app_key
+        )
+      )
+    }else if(apitype == "cycle"){
+      httrmsg = httr::modify_url(
+        base_url,
+        path = ft_string,
+        query = list(
+          app_id = app_id,
+          app_key = app_key
+        )
+      )
+    }else{
+      stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
+    }
   }
+
+
+
+
 
   if (silent == FALSE) {
     print(paste0("The request sent to transportapi.com was: ", httrmsg))
