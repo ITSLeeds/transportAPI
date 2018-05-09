@@ -252,8 +252,13 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
       # retunning NA means failed this route but try again
     }else if("character" %in% class(routes)){
       # Returning error message means rate limit reached, so stop trying
-      warning("Rate limit cap detected aborting futher attempts")
-      break
+      if(grepl("usage limits are exceeded",routes)){
+        warning("Rate limit cap detected aborting futher attempts")
+        break
+      }else{
+        warning(paste0("Error: ", routes))
+        routes = NA
+      }
     }else{
       if(!is.null(fromid)){
         routes$fromid = fromid[i]
