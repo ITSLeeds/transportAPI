@@ -193,11 +193,13 @@ journey = function(from, to,
 #'
 #' @param from Longitude/Latitude pair, e.g. `c(-0.134649,51.529258)` or SF points of class "sfc_POINT" "sfc" and length one
 #' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)` or SF points of class "sfc_POINT" "sfc" and length one
+#' @param fromid optional vector of ids to associate with coordinates (makes resutls easier to understand when multiple routes are returned)
+#' @param toid optional vector of ids to associate with coordinates
 #' @export
 #' @examples
 #' None
 #'
-journey.batch = function(from, to, ...){
+journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
   # check valid input types
   if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
     stop("Error: Invalid input type for from")
@@ -241,7 +243,17 @@ journey.batch = function(from, to, ...){
       stop("Error: SERIOUS ERROR CODE 2")
     }
 
+    # Get routes
     routes = journey(from = from.i, to = to.i, ...)
+
+    #If aviaible assing from and to ids
+    if(!is.null(fromid)){
+      routes$fromid = fromid[i]
+    }
+    if(!is.null(toid)){
+      routes$toid = toid[i]
+    }
+
     results[[i]] = routes
 
   }
