@@ -260,7 +260,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
 
   }
   results <- results[!is.na(results)]
-  results <- bind_rows(results)
+  suppressWarnings(results <- bind_rows(results))
   #rebuild the sf object
   results <- as.data.frame(results)
   results$geometry <- st_sfc(results$geometry)
