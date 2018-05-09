@@ -5,7 +5,7 @@
 transportAPI
 ============
 
-The goal of transportAPI is to provide a simple R interface to the transportAPI.net routing service.
+The goal of transportAPI is to provide a simple R interface to the transportAPI.com service.
 
 It was split-out from **stplanr** for modularity.
 
