@@ -171,21 +171,22 @@ journey = function(from, to,
 
   obj <- jsonlite::fromJSON(txt, simplifyDataFrame = TRUE)
 
+  # Error checking and result returning
+
   if (is.element("error", names(obj))) {
-    stop(paste0("Error: ", obj$error))
-  }
-
-  if(length(obj$routes) == 0){
-    warning(paste0("Error: transportapi.com was unable to find a route between ",orig," and ",dest))
-    return(NA)
+    warning(paste0("Error: ", obj$error))
+    return(obj$error)
   }else{
-    if(!save_raw) {
-      obj = json2sf_tapi(obj,apitype)
+    if(length(obj$routes) == 0){
+      warning(paste0("Error: transportapi.com was unable to find a route between ",orig," and ",dest))
+      return(NA)
+    }else{
+      if(!save_raw) {
+        obj = json2sf_tapi(obj,apitype)
+      }
+      return(obj)
     }
-    return(obj)
   }
-
-
 
 }
 
@@ -247,7 +248,13 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, ...){
     routes = journey(from = from.i, to = to.i, ...)
 
     #If aviaible assing from and to ids
-    if(!"logical" %in% class(routes)){ #Check class as is.na() check every element in a dataframe and returns a warning
+    if("logical" %in% class(routes)){#Check class as is.na() check every element in a dataframe and returns a warning
+      # retunning NA means failed this route but try again
+    }else if("character" %in% class(routes)){
+      # Returning error message means rate limit reached, so stop trying
+      warning("Rate limit cap detected aborting futher attempts")
+      next
+    }else{
       if(!is.null(fromid)){
         routes$fromid = fromid[i]
       }
