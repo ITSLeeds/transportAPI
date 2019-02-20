@@ -4,17 +4,22 @@
 \alias{journey.batch}
 \title{Wrapper for jounrey fuction to perform multiple routings}
 \usage{
-journey.batch(from, to, ...)
+journey.batch(from, to, fromid = NULL, toid = NULL, save_raw = FALSE,
+  ...)
 }
 \arguments{
 \item{from}{Longitude/Latitude pair, e.g. \code{c(-0.134649,51.529258)} or SF points of class "sfc_POINT" "sfc" and length one}
 
 \item{to}{Longitude/Latitude pair, e.g. \code{c(-0.088780,51.506383)} or SF points of class "sfc_POINT" "sfc" and length one}
+
+\item{fromid}{optional vector of ids to associate with coordinates (makes resutls easier to understand when multiple routes are returned)}
+
+\item{toid}{optional vector of ids to associate with coordinates}
+
+\item{save_raw}{Boolean value which returns raw list from the json if TRUE (FALSE by default).}
+
+\item{...}{passed to \code{journey()}}
 }
 \description{
 Wrapper for jounrey fuction to perform multiple routings
-}
-\examples{
-None
-
 }

@@ -1,0 +1,44 @@
+---
+title: "Intorduction to TransportAPI"
+author: "Malcolm Morgan"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The goal of 'transportAPI' is to provide a simple R interface to the TransportAPI (<https://www.TransportAPI.com/>) routing/data API. This API provides multimodal A-B routing, and as well as other data such as stations, timetables, and more.
+
+## Installation
+
+Install the package with devtools as follows:
+
+```{r, eval = FALSE}
+# install.packages("devtools") # Only if you do not have the devtools package already
+devtools::install_github("ITSleeds/transportAPI")
+```
+
+This package is not yet aviaible on CRAN as it still in Beta stage.
+
+## Getting setup with Transport API
+
+To use transportAPI you need an account. You can signup at https://developer.transportapi.com/ for a free API key.
+
+You need to have an api key and app id for this code to run.
+By default it uses the TRANSPORTAPI_app_id and  TRANSPORTAPI_app_key environment variable.
+This can be set with `usethis::edit_r_environ()`.
+
+## Getting routes
+
+The function `journey()` returns a route from A to B.
+
+```{r, eval =TRUE}
+from = c(-0.134649,51.529258) # Euston Station
+to = c(-0.088780,51.506383) # Bridge House
+r1 = transportAPI::journey(from, to)
+plot(r1["mode"])
+```
+
+
