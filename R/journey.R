@@ -63,12 +63,12 @@ journey = function(from, to,
   }else if(all(c("sfc_POINT", "sfc") %in% class(from))){
     # SF Points
     if(length(from) == 1){
-      if(is.na(st_crs(from)[[1]])){
-        from = st_transform(from, 4326)
+      if(is.na(sf::st_crs(from)[[1]])){
+        from = sf::st_transform(from, 4326)
         message("Reprojecting from to lat/lng coordinates")
       }
-      if(st_crs(from)[[1]] != 4326){
-        from = st_transform(from, 4326)
+      if(sf::st_crs(from)[[1]] != 4326){
+        from = sf::st_transform(from, 4326)
         message("Reprojecting from to lat/lng coordinates")
       }
 
@@ -86,12 +86,12 @@ journey = function(from, to,
   }else if(all(c("sfc_POINT", "sfc") %in% class(to))){
     # SF Points
     if(length(to) == 1){
-      if(is.na(st_crs(to)[[1]])){
-        to = st_transform(to, 4326)
+      if(is.na(sf::st_crs(to)[[1]])){
+        to = sf::st_transform(to, 4326)
         message("Reprojecting to to lat/lng coordinates")
       }
-      if(st_crs(to)[[1]] != 4326){
-        to = st_transform(to, 4326)
+      if(sf::st_crs(to)[[1]] != 4326){
+        to = sf::st_transform(to, 4326)
         message("Reprojecting to to lat/lng coordinates")
       }
 
@@ -226,10 +226,10 @@ journey = function(from, to,
 #' @param to Longitude/Latitude pair, e.g. `c(-0.088780,51.506383)` or SF points of class "sfc_POINT" "sfc" and length one
 #' @param fromid optional vector of ids to associate with coordinates (makes resutls easier to understand when multiple routes are returned)
 #' @param toid optional vector of ids to associate with coordinates
+#' @param save_raw Boolean value which returns raw list from the json if TRUE (FALSE by default).
+#' @param ... passed to `journey()`
 #' @export
-#' @examples
-#' None
-#'
+
 journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE, ...){
   # check valid input types
   if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
@@ -303,12 +303,12 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE,
 
   if(!save_raw){
     results <- results[!is.na(results)]
-    suppressWarnings(results <- bind_rows(results))
+    suppressWarnings(results <- dplyr::bind_rows(results))
     #rebuild the sf object
     results <- as.data.frame(results)
-    results$geometry <- st_sfc(results$geometry)
-    results <- st_sf(results)
-    st_crs(results) <- 4326
+    results$geometry <- sf::st_sfc(results$geometry)
+    results <- sf::st_sf(results)
+    sf::st_crs(results) <- 4326
   }
 
   return(results)
@@ -355,7 +355,7 @@ json2sf_tapi = function(obj,apitype) {
     routes = cbind(routes,route_parts)
 
     routes = sf::st_as_sf(routes)
-    st_crs(routes) = 4326
+    sf::st_crs(routes) = 4326
 
     return(routes)
 
@@ -371,7 +371,7 @@ json2sf_tapi = function(obj,apitype) {
     routes$acknowledgements = obj$acknowledgements
 
     routes = sf::st_as_sf(routes)
-    st_crs(routes) = 4326
+    sf::st_crs(routes) = 4326
 
     return(routes)
   }else{
