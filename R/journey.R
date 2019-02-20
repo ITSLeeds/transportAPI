@@ -323,10 +323,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE,
 #'
 #' @param obj Object from transportapi.com read-in with
 #' @param apitype Type of routing can be car, cycle, public (DEFAULT)
-#' @export
-#' @examples
-#' None
-#'
+
 json2sf_tapi = function(obj,apitype) {
   if(apitype == "public"){
     # Extract routes

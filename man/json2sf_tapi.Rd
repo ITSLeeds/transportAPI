@@ -14,7 +14,3 @@ json2sf_tapi(obj, apitype)
 \description{
 Convert output from transportapi.com into sf object
 }
-\examples{
-None
-
-}
