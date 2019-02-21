@@ -6,7 +6,8 @@
 \usage{
 journey(from, to, apitype = "public", modes = NULL, not_modes = NULL,
   service = NULL, date = NULL, time = NULL, type = NULL,
-  silent = TRUE, app_id = NULL, app_key = NULL,
+  silent = TRUE, app_id = Sys.getenv("TRANSPORTAPI_app_id"),
+  app_key = Sys.getenv("TRANSPORTAPI_app_key"),
   base_url = "http://transportapi.com/", save_raw = FALSE)
 }
 \arguments{

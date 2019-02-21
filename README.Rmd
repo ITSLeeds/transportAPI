@@ -1,38 +1,65 @@
----
-output: github_document
----
-
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robinlovelace/transportAPI?branch=master&svg=true)](https://ci.appveyor.com/project/robinlovelace/transportAPI)
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
+---	---
+output: github_document	output: github_document
+---	---
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robinlovelace/transportAPI?branch=master&svg=true)](https://ci.appveyor.com/project/robinlovelace/transportAPI)	[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robinlovelace/transportAPI?branch=master&svg=true)](https://ci.appveyor.com/project/robinlovelace/transportAPI)
+<!-- README.md is generated from README.Rmd. Please edit that file -->	<!-- README.md is generated from README.Rmd. Please edit that file -->
+```{r setup, include = FALSE}	```{r setup, include = FALSE}
+knitr::opts_chunk$set(	knitr::opts_chunk$set(
+  collapse = TRUE,	  collapse = TRUE,
+  comment = "#>",	  comment = "#>",
+  fig.path = "man/figures/README-",	  fig.path = "man/figures/README-",
+  out.width = "100%"	  out.width = "100%"
+)	)
 ```
-# Open Trip Planner for R
+# transportAPI	# Open Trip Planner for R
 
-The goal of Open Trip Planner for R is to provide a simple R interface to the Open Trip Planner.
 
-## Installation - Open Trip Planner
+ The goal of transportAPI is to provide a simple R interface to the transportAPI.com service.	The goal of Open Trip Planner for R is to provide a simple R interface to the Open Trip Planner.
 
-To use Open Trip Planner for R you need to install and run Open Trip Planner
+
+ It was split-out from **stplanr** for modularity.	## Installation - Open Trip Planner
+
+
+ Currently only the jounrney planner APIs are supported.	To use Open Trip Planner for R you need to install and run Open Trip Planner
 http://docs.opentripplanner.org/en/latest/Basic-Tutorial/
 
 
-## Installation - R Package
+ ## Installation	
+ ## Installation - R Package
 
-<!-- You can install the released version of transportAPI from [CRAN](https://CRAN.R-project.org) with: -->
-Install the package with **devtools** as follows:
+
+Install the package with **devtools** as follows:	Install the package with **devtools** as follows:
+
 
 ```{r install, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("marcusyoung/otpr")
+devtools::install_github("ITSleeds/transportAPI")	
 ```
 
-## Example
 
+ ## Example	## Example
+
+
+ A common need is to get from A to B:	
+
+ ```{r}	
+library(transportAPI)	
+library(sf)	
+library(dplyr)	
+from = c(-0.432, 51.52)	
+to = c(0.012, 51.52)	
+r.public = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/")	
+sf:::plot.sf(r.public[r.public$route_option == 1,"mode"], lwd = 3)	
+r.car = transportAPI::journey(from, to, base_url = "http://fcc.transportapi.com/", apitype = "car")	
+sf:::plot.sf(r.car[,"mode"], lwd = 3)	
+ ```	
+
+ To get a key go to https://developer.transportapi.com/	
+
+ Save the key as an environment varible using `export TRANSPORTAPI_app_id=your_id_here` by adding `TRANSPORTAPI_app_id=your_id_here` as a new line in your `.Renviron` file and `TRANSPORTAPI_app_key=your_key_here`, e.g. with the following command:	
+
+ ```{r, eval=FALSE}	
+usethis::edit_r_environ()	
+```	
+
+ Route types available are: public, car, cycle	
+See help pages such as `?journey` and https://developer.transportapi.com/ for details.	

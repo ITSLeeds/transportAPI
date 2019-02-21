@@ -47,14 +47,11 @@ journey = function(from, to,
                     time = NULL,
                     type = NULL,
                     silent = TRUE,
-                    app_id = NULL,
-                    app_key = NULL,
+                    app_id = Sys.getenv("TRANSPORTAPI_app_id"),
+                    app_key = Sys.getenv("TRANSPORTAPI_app_key"),
                     base_url = "http://transportapi.com/",
                     save_raw = FALSE
                     ) {
-
-  if(is.null(app_id)) app_id = Sys.getenv("TRANSPORTAPI_app_id")
-  if(is.null(app_key)) app_key = Sys.getenv("TRANSPORTAPI_app_key")
 
   # Prepare the input format
   if("numeric" %in%  class(from)){
