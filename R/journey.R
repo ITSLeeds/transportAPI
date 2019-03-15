@@ -38,7 +38,7 @@
 #' r1 = journey(from, to)
 #' r2 = journey(from, to, apitype = "car")
 #' }
-journey = function(from, to,
+tapi_journey = function(from, to,
                     apitype = "public",
                     modes = NULL,
                     not_modes = NULL,

@@ -32,12 +32,12 @@ This can be set with `usethis::edit_r_environ()`.
 
 ## Getting routes
 
-The function `journey()` returns a route from A to B.
+The function `tapi_journey()` returns a route from A to B.
 
 ```{r, eval =TRUE}
 from = c(-0.134649,51.529258) # Euston Station
 to = c(-0.088780,51.506383) # Bridge House
-r1 = transportAPI::journey(from, to)
+r1 = transportAPI::tapi_journey(from, to)
 plot(r1["mode"])
 ```
 
