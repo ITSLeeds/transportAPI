@@ -32,16 +32,8 @@
 #' @param base_url The base url from which to construct API requests
 #' (with default set to main server)
 #' @param save_raw Boolean value which returns raw list from the json if TRUE (FALSE by default).
-#' @inheritParams json2sf_tapi
-#' @seealso json2sf_tapi
-#' @export
 #' @examples
-#' \dontrun{
-#' from = c(-0.134649,51.529258) # Euston Station
-#' to = c(-0.088780,51.506383) # Bridge House
-#' r1 = journey(from, to)
-#' r2 = journey(from, to, apitype = "car")
-#' }
+
 train_station = function(station_code,
                    live = FALSE,
                    date = NULL,
@@ -86,103 +78,5 @@ train_station = function(station_code,
 
   stop("This code is unfinished")
 
-  #Select Routing API
-  if(base_url == "http://fcc.transportapi.com/"){
-    if(apitype == "public"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string,
-        query = list(
-          modes = modes,
-          not_modes = not_modes,
-          service = service
-        )
-      )
-    }else if(apitype == "car"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string
-      )
-    }else if(apitype == "cycle"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string
-      )
-    }else{
-      stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
-    }
-  }else{
-    if(apitype == "public"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string,
-        query = list(
-          app_id = app_id,
-          app_key = app_key,
-          modes = modes,
-          not_modes = not_modes,
-          service = service
-        )
-      )
-    }else if(apitype == "car"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string,
-        query = list(
-          app_id = app_id,
-          app_key = app_key
-        )
-      )
-    }else if(apitype == "cycle"){
-      httrmsg = httr::modify_url(
-        base_url,
-        path = ft_string,
-        query = list(
-          app_id = app_id,
-          app_key = app_key
-        )
-      )
-    }else{
-      stop("Error: Invalid routing apitype, use 'car','public', or 'cycle'")
-    }
-  }
-
-
-
-
-
-  if (silent == FALSE) {
-    print(paste0("The request sent to transportapi.com was: ", httrmsg))
-  }
-
-  httrreq <- httr::GET(httrmsg)
-
-  if (grepl('application/json', httrreq$headers$`content-type`) == FALSE) {
-    stop("Error: transportapi.com did not return a valid result")
-  }
-
-  txt <- httr::content(httrreq, as = "text", encoding = "UTF-8")
-  if (txt == "") {
-    stop("Error: transportapi.com did not return a valid result")
-  }
-
-  obj <- jsonlite::fromJSON(txt, simplifyDataFrame = TRUE)
-
-  # Error checking and result returning
-
-  if (is.element("error", names(obj))) {
-    warning(paste0("Error: ", obj$error))
-    return(obj$error)
-  }else{
-    if(length(obj$routes) == 0){
-      warning(paste0("Error: transportapi.com was unable to find a route between ",orig," and ",dest))
-      return(NA)
-    }else{
-      if(!save_raw) {
-        obj = json2sf_tapi(obj,apitype)
-      }
-      return(obj)
-    }
-  }
 
 }
