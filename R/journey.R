@@ -30,7 +30,7 @@
 #' @param save_raw Boolean value which returns raw list from the json if TRUE (FALSE by default).
 #' @inheritParams json2sf_tapi
 #' @seealso json2sf_tapi
-#' @export
+#'
 #' @examples
 #' \dontrun{
 #' from = c(-0.134649,51.529258) # Euston Station
@@ -38,7 +38,9 @@
 #' r1 = journey(from, to)
 #' r2 = journey(from, to, apitype = "car")
 #' }
-journey = function(from, to,
+#' @export
+
+tapi_journey = function(from, to,
                     apitype = "public",
                     modes = NULL,
                     not_modes = NULL,
@@ -227,7 +229,7 @@ journey = function(from, to,
 #' @param ... passed to `journey()`
 #' @export
 
-journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE, ...){
+tapi_journey_batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE, ...){
   # check valid input types
   if(!all(class(from) %in% c("matrix","sfc_POINT","sfc"))){
     stop("Error: Invalid input type for from")
@@ -272,7 +274,7 @@ journey.batch = function(from, to, fromid = NULL, toid = NULL, save_raw = FALSE,
     }
 
     # Get routes
-    routes = journey(from = from.i, to = to.i, save_raw = save_raw, ...)
+    routes = tapi_journey(from = from.i, to = to.i, save_raw = save_raw, ...)
 
     #If aviaible assing from and to ids
     if("logical" %in% class(routes)){#Check class as is.na() check every element in a dataframe and returns a warning
