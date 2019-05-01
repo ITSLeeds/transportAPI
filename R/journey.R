@@ -119,7 +119,7 @@ tapi_journey = function(from, to,
 
 
   #Select Routing API
-  if(base_url == "http://fcc.transportapi.com/"){
+  if(base_url == "http://tsc.transportapi.com/"){
     if(apitype == "public"){
       httrmsg = httr::modify_url(
         base_url,
