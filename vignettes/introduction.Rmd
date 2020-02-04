@@ -13,11 +13,12 @@ The goal of 'transportAPI' is to provide a simple R interface to the TransportAP
 
 ## Installation
 
-Install the package with devtools as follows:
+Install the package with remotes as follows:
 
 ```{r, eval = FALSE}
-# install.packages("devtools") # Only if you do not have the devtools package already
-devtools::install_github("ITSleeds/transportAPI")
+# install.packages("remotes") # Only if you do not have the remotes package already
+remotes::install_github("ITSleeds/transportAPI")
+library(transportAPI)
 ```
 
 This package is not yet aviaible on CRAN as it still in Beta stage.
